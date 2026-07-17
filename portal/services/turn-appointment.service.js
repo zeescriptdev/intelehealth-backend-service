@@ -22,6 +22,9 @@ module.exports = (function () {
     "YYYY/MM/DD",
     moment.ISO_8601,
   ];
+  const isUnresolvedPlaceholder = (value) =>
+    typeof value === "string" && value.trim().startsWith("@");
+
   const stripAstral = (input) =>
     String(input || "")
       .replace(/[\u{10000}-\u{10FFFF}]/gu, "")
@@ -255,6 +258,9 @@ module.exports = (function () {
       openMrsId,
       locationUuid,
       hwUUID,
+      patientAge,
+      patientGender,
+      patientPic,
     } = params;
 
     const required = {
@@ -272,6 +278,11 @@ module.exports = (function () {
     for (const [key, value] of Object.entries(required)) {
       if (!value || typeof value !== "string") {
         throw new Error(`Invalid request, ${key} is missing.`);
+      }
+      if (isUnresolvedPlaceholder(value)) {
+        throw new Error(
+          `Invalid request, ${key} is an unresolved placeholder ("${value}").`
+        );
       }
     }
 
@@ -333,6 +344,11 @@ module.exports = (function () {
       patientName,
       locationUuid,
       hwUUID: hwUUID || null,
+      patientAge: isUnresolvedPlaceholder(patientAge) ? null : patientAge || null,
+      patientGender: isUnresolvedPlaceholder(patientGender)
+        ? null
+        : patientGender || null,
+      patientPic: isUnresolvedPlaceholder(patientPic) ? null : patientPic || null,
       slotJsDate: moment(
         `${slotDate} ${slotTime}`,
         "DD/MM/YYYY HH:mm A"
