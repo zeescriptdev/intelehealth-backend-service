@@ -15,15 +15,6 @@ const Constant = require("../constants/constant");
 module.exports = (function () {
   const DATE_FORMAT = "DD/MM/YYYY";
   const TIME_FORMAT = "LT";
-  const FILTER_TIME_DATE_FORMAT = "DD/MM/YYYY HH:mm:ss";
-
-  const getFilterDates = (fromDate, toDate) => {
-    return [
-      moment.utc(`${fromDate} 00:00:00`, FILTER_TIME_DATE_FORMAT).format(),
-      moment.utc(`${toDate} 23:59:59`, FILTER_TIME_DATE_FORMAT).format(),
-    ];
-  };
-
   const ACCEPTED_DATE_FORMATS = [
     "DD/MM/YYYY",
     "D/M/YYYY",
@@ -137,7 +128,7 @@ module.exports = (function () {
 
     const appointmentWhere = {
       speciality,
-      slotJsDate: { [Op.between]: getFilterDates(fromDate, toDate) },
+      slotDate: { [Op.in]: days.map((d) => d.normDate) },
       status: Constant.BOOKED,
     };
     if (userUuid) appointmentWhere.userUuid = userUuid;
